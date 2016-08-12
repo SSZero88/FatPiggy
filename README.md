@@ -21,7 +21,8 @@ The player must have a TSHock user to use this command, and be granted the `pigg
 
 ### Load previus piggy
 ```sh
-/piggy next
+/piggy prev
+
 ```
 
 ### Check current piggy id
