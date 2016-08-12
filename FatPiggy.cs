@@ -16,7 +16,7 @@ namespace FatPiggy
         public override string Name { get { return "FatPiggy"; } }
         public override string Author { get { return "SSZero88"; } }
         public override string Description { get { return "Enables multiple piggy bank slots for greedy players!."; } }
-        public override Version Version { get { return new Version(0, 1, 0, 0); } }
+        public override Version Version { get { return new Version(0, 1, 1, 0); } }
 
         public Config Configuration = new Config();
         public Database Database = new Database();
