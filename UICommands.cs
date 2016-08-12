@@ -123,43 +123,6 @@ namespace FatPiggy
                         break;
                     }
                 #endregion
-                case "del":
-				case "rem":
-				case "delete":
-				case "remove":
-                    args.Player.SendErrorMessage("This command is disabled!");
-                    break; // disable this
-					#region Delete Inventory
-					{
-						if (args.Parameters.Count != 2)
-						{
-							args.Player.SendErrorMessage("Invalid syntax: {0}inventory delete <name>", TShock.Config.CommandSpecifier);
-							return;
-						}
-						else if (!FatPiggy.Instance.Players.ContainsKey(args.Player.User.ID))
-						{
-							args.Player.SendErrorMessage("You don't have any piggies saved!");
-							return;
-						}
-						else
-						{
-							args.Parameters.RemoveRange(0, 1);
-							string piggyIndexStr = string.Join(" ", args.Parameters.Select(x => x));
-						    int index = Convert.ToInt32(piggyIndexStr);
-							if (!FatPiggy.Instance.Players[args.Player.User.ID].HasPiggy(index))
-							{
-								args.Player.SendErrorMessage("No piggies under the name of '"+piggyIndexStr+"' were found. \nMake sure you spelled it correctly.");
-								return;
-							}
-							else
-							{
-								//FatPiggy.Instance.Players[args.Player.User.ID].DeletePiggy(index);
-								args.Player.SendSuccessMessage("Deleted piggy '"+piggyIndexStr+"'!");
-							}
-						}
-					}
-					#endregion
-					break;
                 case "list":
 					#region List Inventories
 					{
