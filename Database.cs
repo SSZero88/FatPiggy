@@ -47,11 +47,13 @@ namespace FatPiggy
 
 			sqlcreator.EnsureTableStructure(new SqlTable("FatPiggy",
 				new SqlColumn("UserID", MySqlDbType.Int32),
-				new SqlColumn("PiggyID", MySqlDbType.Int32),
+                new SqlColumn("CharacterName", MySqlDbType.Text),
+                new SqlColumn("PiggyID", MySqlDbType.Int32),
 				new SqlColumn("PiggyContents", MySqlDbType.Text)));
 
             sqlcreator.EnsureTableStructure(new SqlTable("FatPiggy_State",
                 new SqlColumn("UserID", MySqlDbType.Int32),
+                new SqlColumn("CharacterName", MySqlDbType.Text),
                 new SqlColumn("CurrentPiggyID", MySqlDbType.Int32)));
         }
 
@@ -65,14 +67,27 @@ namespace FatPiggy
 				while (reader.Read())
 				{
 					int UserID = reader.Get<int>("UserID");
-					int PiggyId = reader.Get<int>("PiggyID");
+                    string CharName = reader.Get<string>("CharacterName");
+                    int PiggyId = reader.Get<int>("PiggyID");
 					NetItem[] PiggyContents = reader.Get<string>("PiggyContents").Split('~').Select(NetItem.Parse).ToArray();
 
-					if (FatPiggy.Instance.Players.ContainsKey(UserID))
-						FatPiggy.Instance.Players[UserID].Piggies.Add(PiggyId, PiggyContents);
-					else
-						FatPiggy.Instance.Players.Add(UserID, new UIPlayer(UserID, new Dictionary<int, NetItem[]>() { {PiggyId, PiggyContents} }));
-				}
+
+                    if (!FatPiggy.Instance.Players.ContainsKey(UserID))
+                    {
+                        FatPiggy.Instance.Players.Add(UserID, new UIPlayer(UserID));
+                    }
+
+                    if (FatPiggy.Instance.Players[UserID].Characters.ContainsKey(CharName))
+                    {
+                        FatPiggy.Instance.Players[UserID].Characters[CharName].Piggies.Add(PiggyId, PiggyContents);
+
+                    }
+                    else
+                    {
+                        FatPiggy.Instance.Players[UserID].Characters.Add(CharName, new UICharacter(UserID, CharName, new Dictionary<int, NetItem[]>() { { PiggyId, PiggyContents } }));
+                    }
+
+                }
 			}
 
             // load current piggy
@@ -81,45 +96,46 @@ namespace FatPiggy
                 while (reader.Read())
                 {
                     int UserID = reader.Get<int>("UserID");
+                    string CharName = reader.Get<string>("CharacterName");
                     int CurrentPiggyId = reader.Get<int>("CurrentPiggyID");
 
-                    if (FatPiggy.Instance.Players.ContainsKey(UserID))
+                    if (FatPiggy.Instance.Players.ContainsKey(UserID) && FatPiggy.Instance.Players[UserID].Characters.ContainsKey(CharName))
                     {
-                        FatPiggy.Instance.Players[UserID].PiggyCurrent = CurrentPiggyId;
+                        FatPiggy.Instance.Players[UserID].Characters[CharName].PiggyCurrent = CurrentPiggyId;
                     }
                 }
             }
 		}
 
-        public void SavePiggy(int UserID, int index, NetItem[] Piggy, bool updateExisting = false)
+        public void SavePiggy(int UserID, string CharName, int index, NetItem[] Piggy, bool updateExisting = false)
 		{
 
             // if this is the 1st new piggy slot, create the piggy state
-            if(FatPiggy.Instance.Players[UserID].PiggyCurrent == 1)
+            if(FatPiggy.Instance.Players[UserID].Characters[CharName].PiggyCurrent == 1)
             {
-                db.Query("INSERT INTO FatPiggy_State (UserID, CurrentPiggyID) VALUES (@0, @1);", UserID.ToString(), index);
+                db.Query("INSERT INTO FatPiggy_State (UserID, CharacterName, CurrentPiggyID) VALUES (@0, @1, @2);", UserID.ToString(), CharName, index);
             }else
             {
-                db.Query("UPDATE FatPiggy_State SET CurrentPiggyId=@1 WHERE UserID=@0;", UserID.ToString(), index);
+                db.Query("UPDATE FatPiggy_State SET CurrentPiggyId=@2 WHERE UserID=@0 AND CharacterName=@1;", UserID.ToString(), CharName, index);
             }
 
             if (!updateExisting)
 			{
-				FatPiggy.Instance.Players[UserID].Piggies.Add(index, Piggy);
-				db.Query("INSERT INTO FatPiggy (UserID, PiggyID, PiggyContents) VALUES (@0, @1, @2);", UserID.ToString(), index, string.Join("~", Piggy));
+				FatPiggy.Instance.Players[UserID].Characters[CharName].Piggies.Add(index, Piggy);
+				db.Query("INSERT INTO FatPiggy (UserID, CharacterName, PiggyID, PiggyContents) VALUES (@0, @1, @2, @3);", UserID.ToString(), CharName, index, string.Join("~", Piggy));
 			}
 			else
 			{
-				FatPiggy.Instance.Players[UserID].Piggies[index] = Piggy;
-				db.Query("UPDATE FatPiggy SET PiggyContents=@0 WHERE UserID=@1 AND PiggyID=@2;", string.Join("~", Piggy), UserID.ToString(), index);
+				FatPiggy.Instance.Players[UserID].Characters[CharName].Piggies[index] = Piggy;
+				db.Query("UPDATE FatPiggy SET PiggyContents=@0 WHERE UserID=@1 AND CharacterName=@2 AND PiggyID=@3;", string.Join("~", Piggy), UserID.ToString(), CharName, index);
 			}
 		}
 
-        public int GetCurrentPiggyId(int UserId)
+        public int GetCurrentPiggyId(int UserId, string CharName)
         {
-            using (QueryResult reader = db.QueryReader("SELECT * FROM FatPiggy_State where UserId=@0;", UserId.ToString()))
+            using (QueryResult reader = db.QueryReader("SELECT * FROM FatPiggy_State where UserId=@0 and CharacterName=@1;", UserId.ToString(), CharName))
             {
-                int CurrentPiggyId = FatPiggy.Instance.Players[UserId].PiggyCurrent;
+                int CurrentPiggyId = FatPiggy.Instance.Players[UserId].Characters[CharName].PiggyCurrent;
 
                 while (reader.Read())
                 {
@@ -129,9 +145,9 @@ namespace FatPiggy
             }
         }
 
-        public int GetLastPiggyId(int UserId)
+        public int GetLastPiggyId(int UserId, string CharName)
         {
-            using (QueryResult reader = db.QueryReader("SELECT max(PiggyID) as PiggyID FROM FatPiggy where UserId=@0;", UserId.ToString()))
+            using (QueryResult reader = db.QueryReader("SELECT max(PiggyID) as PiggyID FROM FatPiggy where UserId=@0 AND CharacterName=@1;", UserId.ToString(), CharName))
             {
                 int lastPiggyId = 0;
 
@@ -141,12 +157,6 @@ namespace FatPiggy
                 }
                 return lastPiggyId;
             }
-        }
-
-		public void DeletePiggy(int UserID, int Index)
-		{
-			db.Query("DELETE FROM FatPiggy WHERE UserID=@0 AND PiggyID=@1;", UserID.ToString(), Index);
-            db.Query("UPDATE FatPiggy_State SET CurrentPiggyId=@1 WHERE UserID=@0;", Index-1, UserID.ToString());
         }
     }
 }

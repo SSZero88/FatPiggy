@@ -73,6 +73,7 @@
     <Compile Include="Database.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UICommands.cs" />
+    <Compile Include="UICharacter.cs" />
     <Compile Include="UIPlayer.cs" />
   </ItemGroup>
   <ItemGroup>

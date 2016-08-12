@@ -36,19 +36,27 @@ namespace FatPiggy
 						}
 						else
 						{
+                            
 							if (!FatPiggy.Instance.Players.ContainsKey(args.Player.User.ID))
-								FatPiggy.Instance.Players.Add(args.Player.User.ID, new UIPlayer(args.Player.User.ID, new Dictionary<int, NetItem[]>()));
+								FatPiggy.Instance.Players.Add(args.Player.User.ID, new UIPlayer(args.Player.User.ID, new Dictionary<string, UICharacter>()));
 
 							args.Parameters.RemoveRange(0, 1); // Remove "save"
 							string inventoryName = string.Join(" ", args.Parameters.Select(x => x));
-							if (FatPiggy.Instance.Players.ContainsKey(args.Player.User.ID) && FatPiggy.Instance.Players[args.Player.User.ID].PiggyCount() >= FatPiggy.Instance.Configuration.MaxPiggies && !args.Player.HasPermission(FatPiggy.Instance.Configuration.BypassMaxPermission))
+							if (FatPiggy.Instance.Players.ContainsKey(args.Player.User.ID) 
+                                && FatPiggy.Instance.Players[args.Player.User.ID].Characters.ContainsKey(args.Player.TPlayer.name)
+                                && FatPiggy.Instance.Players[args.Player.User.ID].Characters[args.Player.TPlayer.name].PiggyCount() 
+                                    >= FatPiggy.Instance.Configuration.MaxPiggies && !args.Player.HasPermission(FatPiggy.Instance.Configuration.BypassMaxPermission))
 							{
 								args.Player.SendErrorMessage("You have reached the max number of piggies.");
 								return;
 							}
 							else
 							{
-                                FatPiggy.Instance.Players[args.Player.User.ID].NewPiggy();
+                                if (!FatPiggy.Instance.Players[args.Player.User.ID].Characters.ContainsKey(args.Player.TPlayer.name))
+                                {
+                                    FatPiggy.Instance.Players[args.Player.User.ID].Characters.Add(args.Player.TPlayer.name, new UICharacter(args.Player.User.ID, args.Player.TPlayer.name, new Dictionary<int, NetItem[]>()));
+                                }
+                                FatPiggy.Instance.Players[args.Player.User.ID].Characters[args.Player.TPlayer.name].NewPiggy();
 							}
 						}
 					}
@@ -72,14 +80,14 @@ namespace FatPiggy
 							args.Parameters.RemoveRange(0, 1);
 							string inventoryIndexStr = string.Join(" ", args.Parameters.Select(x => x));
 						    int index = Convert.ToInt32(inventoryIndexStr);
-							if (!FatPiggy.Instance.Players[args.Player.User.ID].HasPiggy(index))
+							if (!FatPiggy.Instance.Players[args.Player.User.ID].Characters[args.Player.TPlayer.name].HasPiggy(index))
 							{
 								args.Player.SendErrorMessage("No piggies with the id '"+inventoryIndexStr+"' were found.");
 								return;
 							}
 							else
 							{
-								FatPiggy.Instance.Players[args.Player.User.ID].LoadPiggy(index);
+								FatPiggy.Instance.Players[args.Player.User.ID].Characters[args.Player.TPlayer.name].LoadPiggy(index);
 								args.Player.SendSuccessMessage("Loaded piggy '"+index+"'!");
 							}
 						}
@@ -94,7 +102,7 @@ namespace FatPiggy
                             args.Player.SendErrorMessage("You don't have any piggies saved!");
                             return;
                         }
-                        FatPiggy.Instance.Players[args.Player.User.ID].LoadNextPiggy();
+                        FatPiggy.Instance.Players[args.Player.User.ID].Characters[args.Player.TPlayer.name].LoadNextPiggy();
                         break;
                     }
                 #endregion
@@ -106,7 +114,7 @@ namespace FatPiggy
                             args.Player.SendErrorMessage("You don't have any piggies saved!");
                             return;
                         }
-                        FatPiggy.Instance.Players[args.Player.User.ID].LoadPrevPiggy();
+                        FatPiggy.Instance.Players[args.Player.User.ID].Characters[args.Player.TPlayer.name].LoadPrevPiggy();
                         break;
                     }
                 #endregion
@@ -118,7 +126,7 @@ namespace FatPiggy
                             args.Player.SendErrorMessage("You don't have any piggies saved!");
                             return;
                         }
-                        var current = FatPiggy.Instance.Players[args.Player.User.ID].GetCurrentPiggyId();
+                        var current = FatPiggy.Instance.Players[args.Player.User.ID].Characters[args.Player.TPlayer.name].GetCurrentPiggyId();
                         args.Player.SendInfoMessage("You're currently using piggy " + current + ".");
                         break;
                     }
@@ -132,6 +140,12 @@ namespace FatPiggy
 							return;
 						}
 
+                        if (!FatPiggy.Instance.Players[args.Player.User.ID].Characters.ContainsKey(args.Player.TPlayer.name))
+                        {
+                            args.Player.SendErrorMessage("You don't have any piggies saved!");
+                            return;
+                        }
+
 						if (args.Parameters.Count > 2)
 						{
 							args.Player.SendErrorMessage("Invalid syntax: {0}piggy list [page]", TShock.Config.CommandSpecifier);
@@ -143,7 +157,9 @@ namespace FatPiggy
 							if (!PaginationTools.TryParsePageNumber(args.Parameters, 1, args.Player, out pageNum))
 								return;
 
-							PaginationTools.SendPage(args.Player, pageNum, PaginationTools.BuildLinesFromTerms(FatPiggy.Instance.Players[args.Player.User.ID].GetPiggies()),
+							PaginationTools.SendPage(args.Player,
+                                pageNum, 
+                                PaginationTools.BuildLinesFromTerms(FatPiggy.Instance.Players[args.Player.User.ID].Characters[args.Player.TPlayer.name].GetPiggies()),
 								new PaginationTools.Settings
 								{
 									HeaderFormat = "Piggies ({0}/{1})",
