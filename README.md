@@ -34,7 +34,7 @@ The player must have a TSHock user to use this command, and be granted the `pigg
 ### Todos
 
  - Write unit tests
- - Add per-user bank management capabilities
+ - Add per-character bank management capabilities
  - Add optional requirements to create new piggy banks ( to make it more of a game mechanic)
 
 License
