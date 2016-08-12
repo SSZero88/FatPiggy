@@ -2,8 +2,10 @@
 
 A TShock mod for Terraria allowing users to create and manage multiple server-side piggy bank slots!
 
+Compatable with TShock version 1.23
+
 ## Usage
-The player must have a TSHock user to use this command, and be granted the `piggy.core` permission.
+The player must have a TShock user to use this command, and be granted the `piggy.core` permission.
 ### Create a new piggy
 ```sh
 /piggy new
