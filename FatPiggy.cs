@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Terraria;
 using TerrariaApi.Server;
 using TShockAPI;
+using Terraria;
 using TShockAPI.Hooks;
 
 namespace FatPiggy
 {
-    [ApiVersion(1, 23)]
+    [ApiVersion(2, 1)]
     public class FatPiggy : TerrariaPlugin
     {
         public static FatPiggy Instance;
@@ -25,7 +25,6 @@ namespace FatPiggy
         public FatPiggy(Main game) : base(game)
         {
             Instance = this;
-            
         }
 
         public override void Initialize()

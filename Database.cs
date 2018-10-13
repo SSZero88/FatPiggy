@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Data;
-using Terraria;
 using TShockAPI;
 using TShockAPI.DB;
 using Mono.Data.Sqlite;

@@ -4,6 +4,7 @@ using Terraria;
 using TShockAPI;
 using NetItem = TShockAPI.NetItem;
 using FatPiggy;
+using Terraria.Localization;
 
 namespace FatPiggy
 {
@@ -58,7 +59,7 @@ namespace FatPiggy
                 {
                     player.SendErrorMessage("SSC not enabled");
                     Main.ServerSideCharacter = true;
-                    NetMessage.SendData((int)PacketTypes.WorldInfo, player.Index, -1, "");
+                    NetMessage.SendData((int)PacketTypes.WorldInfo, player.Index, -1, NetworkText.FromLiteral(""));
                 }
 
                 NetItem[] PiggyCurr = ItemToNetItem(player.TPlayer.bank.item);
@@ -73,14 +74,14 @@ namespace FatPiggy
                     player.TPlayer.bank.item[i].prefix = 0;
                     player.TPlayer.bank.item[i].stack = 0;
 
-                    NetMessage.SendData((int)PacketTypes.PlayerSlot, -1, -1, player.TPlayer.bank.item[i].name, player.Index, piggyOffset + i, player.TPlayer.bank.item[i].prefix);
-                    NetMessage.SendData((int)PacketTypes.PlayerSlot, player.Index, -1, player.TPlayer.bank.item[i].name, player.Index, piggyOffset + i, player.TPlayer.bank.item[i].prefix);
+                    NetMessage.SendData((int)PacketTypes.PlayerSlot, -1, -1, NetworkText.FromLiteral(player.TPlayer.bank.item[i].Name), player.Index, piggyOffset + i, player.TPlayer.bank.item[i].prefix);
+                    NetMessage.SendData((int)PacketTypes.PlayerSlot, player.Index, -1, NetworkText.FromLiteral(player.TPlayer.bank.item[i].Name), player.Index, piggyOffset + i, player.TPlayer.bank.item[i].prefix);
                 }
 
                 if (!SSC)
                 {
                     Main.ServerSideCharacter = false;
-                    NetMessage.SendData((int)PacketTypes.WorldInfo, player.Index, -1, "");
+                    NetMessage.SendData((int)PacketTypes.WorldInfo, player.Index, -1, NetworkText.FromLiteral(""));
                 }
 
                 NetItem[] PiggyNew = ItemToNetItem(player.TPlayer.bank.item);
@@ -157,7 +158,7 @@ namespace FatPiggy
 				{
                     player.SendErrorMessage("SSC not enabled");
                     Main.ServerSideCharacter = true;
-					NetMessage.SendData((int)PacketTypes.WorldInfo, player.Index, -1, "");
+					NetMessage.SendData((int)PacketTypes.WorldInfo, player.Index, -1, NetworkText.Empty);
 				}
 
                 int piggyOffset = (58 + player.TPlayer.armor.Length + player.TPlayer.dye.Length + player.TPlayer.miscEquips.Length + player.TPlayer.miscDyes.Length) + 1;
@@ -175,16 +176,16 @@ namespace FatPiggy
 
                     if(player.TPlayer.bank.item[i].prefix > 0)
                     {
-                        player.SendInfoMessage("Prefix of "+ player.TPlayer.bank.item[i].name + " is " + player.TPlayer.bank.item[i].prefix);
+                        player.SendInfoMessage("Prefix of "+ player.TPlayer.bank.item[i].Name + " is " + player.TPlayer.bank.item[i].prefix);
                     }
-                    NetMessage.SendData((int)PacketTypes.PlayerSlot, -1, -1, player.TPlayer.bank.item[i].name, player.Index, piggyOffset + i, player.TPlayer.bank.item[i].prefix);
-					NetMessage.SendData((int)PacketTypes.PlayerSlot, player.Index, -1, player.TPlayer.bank.item[i].name, player.Index, piggyOffset + i, player.TPlayer.bank.item[i].prefix);
+                    NetMessage.SendData((int)PacketTypes.PlayerSlot, -1, -1, NetworkText.FromLiteral(player.TPlayer.bank.item[i].Name), player.Index, piggyOffset + i, player.TPlayer.bank.item[i].prefix);
+					NetMessage.SendData((int)PacketTypes.PlayerSlot, player.Index, -1, NetworkText.FromLiteral(player.TPlayer.bank.item[i].Name), player.Index, piggyOffset + i, player.TPlayer.bank.item[i].prefix);
 				}
 
 				if (!SSC)
 				{
 					Main.ServerSideCharacter = false;
-					NetMessage.SendData((int)PacketTypes.WorldInfo, player.Index, -1, "");
+					NetMessage.SendData((int)PacketTypes.WorldInfo, player.Index, -1, NetworkText.Empty);
 				}
                 
                 // save loaded piggy (might not need to do this)
