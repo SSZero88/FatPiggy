@@ -4,11 +4,11 @@ namespace InvSee
 {
 	public class PlayerInfo
 	{
-		public const string KEY = "InvSee_Data";
+		public const string KEY = "FatPiggy_Data";
 
 		public PlayerData Backup { get; set; }
 
-		public string CopyingUserName { get; set; }
+		public int PiggyIndex { get; set; }
 
 		public PlayerInfo()
 		{
@@ -22,7 +22,7 @@ namespace InvSee
 
 			Backup.RestoreCharacter(player);
 			Backup = null;
-			CopyingUserName = "";
+			PiggyIndex = 0;
 			return true;
 		}
 	}

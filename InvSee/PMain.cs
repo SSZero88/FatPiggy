@@ -12,17 +12,17 @@ namespace InvSee
 	{
 		public override string Author
 		{
-			get { return "Enerdy"; }
+			get { return "SSZero88"; }
 		}
 
 		public override string Description
 		{
-			get { return "Utilizes SSC technology to temporarily copy a player's inventory."; }
+			get { return "Allows you to create additional piggy slots for expanding your piggy bank!"; }
 		}
 
 		public override string Name
 		{
-			get { return "InvSee"; }
+			get { return "FatPiggy"; }
 		}
 
 		public override Version Version
@@ -30,7 +30,7 @@ namespace InvSee
 			get { return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version; }
 		}
 
-		public static string Tag = TShock.Utils.ColorTag("InvSee:", Color.Teal);
+		public static string Tag = TShock.Utils.ColorTag("FatPiggy:", Color.Teal);
 
 		public PMain(Main game)
 			: base(game)
@@ -72,12 +72,12 @@ namespace InvSee
 					TShockAPI.Commands.ChatCommands.Add(command);
 				};
 
-			Add(new Command(Permissions.InvSee, Commands.DoInvSee, "invsee")
+			Add(new Command(Permissions.FatPiggy, Commands.DoCreatePiggy, "piggy")
 				{
 					HelpDesc = new[]
 					{
-						"Replaces own inventory with target player's inventory.",
-						$"Use '{TShockAPI.Commands.Specifier}invsee' to reset your inventory."
+						"Allows you to create or switch piggy slots.",
+						$"Use '{TShockAPI.Commands.Specifier}piggy create' to create piggy slots and '{TShockAPI.Commands.Specifier}piggy <index>' to switch piggy slots."
 					}
 				});
 		}
